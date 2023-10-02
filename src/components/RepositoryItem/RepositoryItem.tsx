@@ -5,16 +5,21 @@ import {
     CardActions,
     CardContent,
     CardHeader, Grid,
-    IconButton, Modal, Rating,
+    IconButton, Tooltip,
     Typography
 } from "@mui/material";
-import languagesData from '../../data/languages.json';
 import {RepoForkedIcon, RepoIcon, StarIcon} from '@primer/octicons-react';
-import {Bookmark, BookmarkBorder, StarHalf, Whatshot} from "@mui/icons-material";
+import {
+    Favorite,
+    FavoriteBorder,
+    Star,
+    StarBorder,
+} from "@mui/icons-material";
 import "./RepositoryItem.scss";
-import {purple} from "@mui/material/colors";
+import {yellow} from "@mui/material/colors";
 import {TruncatedText} from "../StyledComponents/TruncatedText";
-import {Box} from "@mui/system";
+import theme from "../../themes/default";
+import RatingModal from "../RatingModal/RatingModal";
 
 interface RepositoryItemProps {
     repository: Repository;
@@ -34,7 +39,6 @@ const RepositoryItem: React.FC<RepositoryItemProps> = ({
                                                            lastRepoRef,
                                                        }) => {
 
-    //const language = languagesData.find((language) => language.name === repository.language) || {name: null, color: ''};
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
     const [rating, setRating] = useState(repository.rating || 0);
 
@@ -59,7 +63,7 @@ const RepositoryItem: React.FC<RepositoryItemProps> = ({
             <Card className="card">
                 <CardHeader
                     avatar={
-                        <Avatar aria-label="recipe" className="avatar" sx={{ backgroundColor: purple[500] }}>
+                        <Avatar aria-label="recipe" className="avatar" sx={{ bgcolor: theme.palette.primary.main }}>
                             <RepoIcon size={20} />
                         </Avatar>
                     }
@@ -70,6 +74,7 @@ const RepositoryItem: React.FC<RepositoryItemProps> = ({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="title"
+                                style={{color: theme.palette.primary.main}}
                             >
                                 {repository.name}
                             </a>
@@ -97,10 +102,10 @@ const RepositoryItem: React.FC<RepositoryItemProps> = ({
                                 style={{
                                     textDecoration: 'none',
                                     marginRight: '10px',
-                                    color: '#551A8B',
+                                    color: 'black'
                                 }}
                             >
-                                <StarIcon size={20}/>
+                                <StarIcon fill={theme.palette.secondary.main} size={20}/>
                                 {repository.stargazerCount}
                             </a>
                         </React.Fragment>
@@ -114,82 +119,41 @@ const RepositoryItem: React.FC<RepositoryItemProps> = ({
                                 style={{
                                     textDecoration: 'none',
                                     marginRight: '10px',
-                                    color: '#551A8B',
-                                    marginLeft: 0
+                                    marginLeft: 0,
+                                    color: 'black'
                                 }}
                             >
-                                <RepoForkedIcon size={20}/>
+                                <RepoForkedIcon fill={theme.palette.secondary.main} size={20}/>
                                 {repository.forkCount}
                             </a>
                         </React.Fragment>
                     ) : null}
                         <div style={{ marginLeft: 'auto' }}>
                             {onRate && (
-                                <IconButton onClick={handleOpenRatingModal}>
-                                    <StarHalf fontSize={"large"} />
-                                </IconButton>
+                                <Tooltip title="Repository rating">
+                                    <IconButton style={{color: "black"}} onClick={handleOpenRatingModal}>
+                                        {rating}{rating > 0 ? <Star style={{color: yellow["A700"]}} fontSize={"large"}/> : <StarBorder style={{color: yellow["A700"]}} fontSize={"large"}/>}
+                                    </IconButton>
+                                </Tooltip>
                             )}
-                            <IconButton onClick={onToggleFavorite}>
-                                {isFavorite ? <Bookmark fontSize={"large"} /> : <BookmarkBorder fontSize={"large"} />}
-                            </IconButton>
+                            <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+                                <IconButton onClick={onToggleFavorite}>
+                                    {isFavorite ? <Favorite color={"primary"} fontSize={"large"} /> : <FavoriteBorder color={"primary"} fontSize={"large"} />}
+                                </IconButton>
+                            </Tooltip>
                         </div>
                 </CardActions>
                 {isLastItem && lastRepoRef && (
                     <div ref={(node) => lastRepoRef(node as HTMLDivElement)}></div>
                 )}
             </Card>
-            <Modal
-                open={isRatingModalOpen}
+            <RatingModal
+                isOpen={isRatingModalOpen}
                 onClose={handleCloseRatingModal}
-                aria-labelledby="rating-modal-title"
-                aria-describedby="rating-modal-description"
-            >
-                <Box sx={{
-                    position: 'absolute' as 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'white',
-                    border: '2px solid #000',
-                    boxShadow: 24,
-                    p: 4,
-                }}>
-                    <Typography variant="h6" id="rating-modal-title">
-                        Edit Rating
-                    </Typography>
-                    <Rating
-                        name={`rating-${repository.url}`}
-                        value={rating}
-                        onChange={(event, newRating) => handleRatingChange(Number(newRating))}
-                    />
-                </Box>
-            </Modal>
+                onRatingChange={handleRatingChange}
+                rating={rating}
+            />
         </Grid>
-        // <div>
-        //     <Typography variant="h6" component="div">
-        //         <a href={repository.url} target="_blank" rel="noopener noreferrer">
-        //             {repository.name}
-        //         </a>
-        //     </Typography>
-        //     <Typography variant="body2" color="textSecondary">
-        //         {repository.description}
-        //     </Typography>
-        //     <Button
-        //         variant="contained"
-        //         color={isFavorite ? 'secondary' : 'primary'}
-        //         onClick={onToggleFavorite}
-        //     >
-        //         {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-        //     </Button>
-        //     {onRate && (
-        //         <Rating
-        //             name={`rating-${repository.url}`}
-        //             value={repository.rating !== null ? repository.rating : 0}
-        //             onChange={(event, newRating) => onRate(Number(newRating))}
-        //         />
-        //     )}
-        // </div>
     );
 };
 

@@ -6,13 +6,14 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import { Grid } from '@mui/material';
-
-const allowedLanguages = ["JavaScript", "Python", "Java", "TypeScript", "C#", "C++", "PHP", "Shell", "C", "Ruby", "Go"];
+import LanguageData from '../../data/languages.json';
+import Language from "../../interfaces/Language";
 
 function SearchForm({ onSearch }: { onSearch: (query: string) => void }) {
 
+    const languages: Array<Language> = JSON.parse(JSON.stringify(LanguageData));
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+    const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
     const [selectedSort, setSelectedSort] = useState<string>('best-match');
     const [mounted, setMounted] = useState(false);
 
@@ -20,7 +21,7 @@ function SearchForm({ onSearch }: { onSearch: (query: string) => void }) {
         setSearchQuery(e.target.value);
     };
 
-    const handleLanguageChange = (e: React.ChangeEvent<{}>, newLanguages: string[]) => {
+    const handleLanguageChange = (e: React.ChangeEvent<{}>, newLanguages: Language[]) => {
         setSelectedLanguages(newLanguages);
     };
 
@@ -35,7 +36,7 @@ function SearchForm({ onSearch }: { onSearch: (query: string) => void }) {
             return;
         }
 
-        const languageQuery = selectedLanguages.length > 0 ? `(language:${selectedLanguages.join(' OR ')})` : '';
+        const languageQuery = selectedLanguages.length > 0 ? `(language:${selectedLanguages.map((language) => language.name).join(' OR ')})` : '';
         const query = `${searchQuery} in:(name,description) ${languageQuery} sort:${selectedSort}`;
 
         onSearch(query);
@@ -57,9 +58,10 @@ function SearchForm({ onSearch }: { onSearch: (query: string) => void }) {
                 <Autocomplete
                     multiple
                     id="languages"
-                    options={allowedLanguages}
+                    options={languages}
                     onChange={handleLanguageChange}
                     value={selectedLanguages}
+                    getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} label="Languages" variant="outlined" />}
                 />
             </Grid>

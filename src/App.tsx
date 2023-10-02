@@ -1,14 +1,14 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {Route, Routes, useLocation} from 'react-router-dom';
+import React, { useCallback, useRef, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { useQuery } from '@apollo/client';
+import { debounce } from 'lodash';
+import { CircularProgress, Grid } from '@mui/material';
 import Header from './components/Header/Header';
 import SearchForm from './components/SearchForm/SearchForm';
 import RepositoryItem from './components/RepositoryItem/RepositoryItem';
-import {Repository} from "./interfaces/Repository";
-import {useQuery} from '@apollo/client';
-import {SEARCH_REPOSITORIES} from './queries/queries';
-import {loadErrorMessages, loadDevMessages} from "@apollo/client/dev";
-import {debounce} from 'lodash';
-import {CircularProgress, Grid} from '@mui/material';
+import { Repository } from "./interfaces/Repository";
+import { SEARCH_REPOSITORIES } from './queries/queries';
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
 loadDevMessages();
 loadErrorMessages();
@@ -16,9 +16,7 @@ loadErrorMessages();
 function App() {
 
     const first = 20;
-    const isOnFavoritesPage = useLocation().pathname === '/favorites';
     const observer = useRef<IntersectionObserver | null>(null);
-
     const [favorites, setFavorites] = useState<Repository[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loadedRepositories, setLoadedRepositories] = useState<Repository[]>([]);
@@ -80,7 +78,6 @@ function App() {
         } else {
             setFavorites([...favorites, repository]);
         }
-        console.log(favorites);
     };
 
     const rateRepository = (repository: Repository, rating: number) => {
@@ -125,11 +122,11 @@ function App() {
                                                     />
                                                 ))}
                                             </Grid>
-                                            {loading ? (
+                                            {loading && (
                                                 <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                                                     <CircularProgress />
                                                 </div>
-                                            ) : null}
+                                            )}
                                         </div>
                                     </Grid>
                                 }
@@ -140,7 +137,7 @@ function App() {
                                         position: "absolute",
                                         right: "0px",
                                         width: "100%"}}>
-                                        <Grid container spacing={1}>
+                                        <Grid container spacing={5} sx={{ padding: '20px' }}>
                                             {favorites.map((repository) => (
                                                 <RepositoryItem
                                                     key={repository.url}

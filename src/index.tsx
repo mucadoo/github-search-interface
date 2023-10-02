@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ApolloProvider } from '@apollo/client';
+import {ApolloProvider} from '@apollo/client';
 import client from './services/apolloClient';
 import {BrowserRouter} from "react-router-dom";
+import {ThemeProvider} from "@mui/system";
+import theme from "./themes/default";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -15,7 +17,9 @@ root.render(
     <React.StrictMode>
         <ApolloProvider client={client}>
             <BrowserRouter>
-                <App />
+                <ThemeProvider theme={theme}>
+                    <App/>
+                </ThemeProvider>
             </BrowserRouter>
         </ApolloProvider>
     </React.StrictMode>
